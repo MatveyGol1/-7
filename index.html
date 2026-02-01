@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор личной инфляции - Росстат</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --accent-cyan: #06b6d4;
+            --accent-lime: #84cc16;
+            --accent-lime-dark: #65a30d;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 50%, #ecfccb 100%);
+        }
+
+        /* Animated Background Elements */
+        .bg-animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.3), transparent);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .circle-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(132, 204, 22, 0.3), transparent);
+            bottom: 10%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
+        .circle-3 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.2), transparent);
+            top: 50%;
+            right: 20%;
+            animation-delay: 6s;
+        }
+
+        .circle-4 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(132, 204, 22, 0.2), transparent);
+            bottom: 30%;
+            left: 15%;
+            animation-delay: 9s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+            50% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+            75% {
+                transform: translate(20px, 30px) scale(1.05);
+            }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: particle-float 15s infinite ease-in-out;
+        }
+
+        @keyframes particle-float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-100px) translateX(50px);
+                opacity: 0.3;
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 40px 20px;
+            max-width: 900px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            animation: slideInDown 1s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            font-weight: 500;
+            animation: slideInUp 1s ease-out 0.2s backwards;
+        }
+
+        .stats-preview {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            margin-bottom: 48px;
+            flex-wrap: wrap;
+            animation: fadeIn 1s ease-out 0.4s backwards;
+        }
+
+        .stat-item-hero {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Space Mono', monospace;
+            display: block;
+            animation: countUp 2s ease-out;
+        }
+
+        .stat-label-hero {
+            font-size: 1rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cta-button {
+            padding: 20px 48px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.3);
+            animation: pulse-button 2s infinite, fadeIn 1s ease-out 0.6s backwards;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(6, 182, 212, 0.4);
+        }
+
+        @keyframes pulse-button {
+            0%, 100% {
+                box-shadow: 0 10px 30px rgba(6, 182, 212, 0.3);
+            }
+            50% {
+                box-shadow: 0 10px 40px rgba(6, 182, 212, 0.5);
+            }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            opacity: 0.6;
+        }
+
+        .scroll-indicator svg {
+            width: 30px;
+            height: 30px;
+            stroke: var(--accent-cyan);
+            stroke-width: 2;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                transform: translateX(-50%) translateY(10px);
+            }
+        }
+
+        /* Main Calculator Section */
+        .calculator-section {
+            min-height: 100vh;
+            padding: 60px 20px;
+            background: var(--bg-primary);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease-out;
+        }
+
+        .calculator-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 0;
+            margin-bottom: 40px;
+        }
+
+        .header-content h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .controls-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .year-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 8px 16px;
+        }
+
+        .year-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .year-select {
+            padding: 8px 12px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .year-select:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        .year-select:focus {
+            outline: none;
+            border-color: var(--accent-lime);
+            box-shadow: 0 0 0 3px rgba(132, 204, 22, 0.1);
+        }
+
+        .lang-switcher {
+            display: flex;
+            gap: 8px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 6px;
+        }
+
+        .lang-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            color: white;
+        }
+
+        .lang-btn:hover:not(.active) {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-cyan);
+        }
+
+        /* Main Grid */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        /* Categories Section */
+        .categories-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .categories-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .categories-container::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        .categories-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--accent-cyan), var(--accent-lime));
+            border-radius: 10px;
+        }
+
+        .category-group {
+            margin-bottom: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s;
+            background: var(--bg-card);
+        }
+
+        .category-group:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: var(--shadow);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-header:hover {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(132, 204, 22, 0.05));
+        }
+
+        .category-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .category-info h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .category-avg-inflation {
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+            color: var(--accent-lime-dark);
+            font-weight: 600;
+        }
+
+        .expand-icon {
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+            transition: transform 0.3s;
+            font-weight: bold;
+        }
+
+        .category-group.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .subcategories {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+
+        .category-group.expanded .subcategories {
+            max-height: 2000px;
+        }
+
+        .subcategory-item {
+            padding: 18px 24px;
+            border-top: 1px solid var(--border-color);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+        }
+
+        .subcategory-item:hover {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.03), rgba(132, 204, 22, 0.03));
+        }
+
+        .subcategory-info {
+            flex: 1;
+        }
+
+        .subcategory-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .subcategory-inflation {
+            font-size: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .inflation-high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .inflation-medium {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .inflation-low {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .weight-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 180px;
+        }
+
+        .weight-input-wrapper {
+            position: relative;
+        }
+
+        .weight-input {
+            width: 80px;
+            padding: 10px 28px 10px 12px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .weight-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+
+        .percent-sign {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            pointer-events: none;
+            font-weight: 600;
+        }
+
+        .slider-wrapper {
+            flex: 1;
+            min-width: 60px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 10px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(6, 182, 212, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Result Card */
+        .result-section {
+            position: sticky;
+            top: 20px;
+        }
+
+        .result-display {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(132, 204, 22, 0.05));
+            border-radius: 20px;
+            margin-bottom: 24px;
+            border: 2px solid var(--border-color);
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .result-value {
+            font-size: 4.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Space Mono', monospace;
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+
+        .result-comparison {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .stat-item:hover {
+            border-color: var(--accent-cyan);
+            transform: translateX(4px);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.2rem;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            color: white;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(132, 204, 22, 0.05));
+            border-color: var(--accent-cyan);
+        }
+
+        /* Reference Materials */
+        .reference-section {
+            margin-top: 24px;
+        }
+
+        .reference-item {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .reference-item:hover {
+            border-color: var(--accent-lime);
+            box-shadow: var(--shadow);
+        }
+
+        .reference-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .reference-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-lime-dark);
+        }
+
+        .reference-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .reference-item.expanded .reference-content {
+            max-height: 500px;
+            margin-top: 12px;
+        }
+
+        .reference-item.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 2px solid var(--border-color);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .result-section {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .stats-preview {
+                gap: 24px;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .controls-wrapper {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .year-selector {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .weight-control {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section" id="heroSection">
+        <div class="bg-animation">
+            <div class="circle circle-1"></div>
+            <div class="circle circle-2"></div>
+            <div class="circle circle-3"></div>
+            <div class="circle circle-4"></div>
+        </div>
+
+        <div class="hero-content">
+            <h1 class="hero-title" data-lang-key="heroTitle">Личная Инфляция</h1>
+            <p class="hero-subtitle" data-lang-key="heroSubtitle">
+                Узнайте, как изменение цен влияет именно на ваш бюджет
+            </p>
+
+            <div class="stats-preview">
+                <div class="stat-item-hero">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label-hero" data-lang-key="heroStat1">Товаров</span>
+                </div>
+                <div class="stat-item-hero">
+                    <span class="stat-number">12</span>
+                    <span class="stat-label-hero" data-lang-key="heroStat2">Категорий</span>
+                </div>
+                <div class="stat-item-hero">
+                    <span class="stat-number">8.5%</span>
+                    <span class="stat-label-hero" data-lang-key="heroStat3">Средняя инфляция</span>
+                </div>
+            </div>
+
+            <button class="cta-button" onclick="scrollToCalculator()" data-lang-key="heroButton">
+                Рассчитать мою инфляцию
+            </button>
+        </div>
+
+        <div class="scroll-indicator">
+            <svg fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+        </div>
+    </section>
+
+    <!-- Calculator Section -->
+    <section class="calculator-section" id="calculatorSection">
+        <div class="container">
+            <div class="header">
+                <div class="header-content">
+                    <h1 data-lang-key="title">Калькулятор личной инфляции</h1>
+                    <p class="subtitle" data-lang-key="subtitle">Рассчитайте вашу персональную инфляцию на основе данных Росстата</p>
+                </div>
+                <div class="controls-wrapper">
+                    <div class="year-selector">
+                        <span class="year-label" data-lang-key="yearLabel">Год:</span>
+                        <select class="year-select" id="yearSelect" onchange="updateYear(this.value)">
+                            <option value="2010">2010</option>
+                            <option value="2011">2011</option>
+                            <option value="2012">2012</option>
+                            <option value="2013">2013</option>
+                            <option value="2014">2014</option>
+                            <option value="2015">2015</option>
+                            <option value="2016">2016</option>
+                            <option value="2017">2017</option>
+                            <option value="2018">2018</option>
+                            <option value="2019">2019</option>
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026" selected>2026</option>
+                        </select>
+                    </div>
+                    <div class="lang-switcher">
+                        <button class="lang-btn active" onclick="setLanguage('ru')">RU</button>
+                        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-layout">
+                <div class="card">
+                    <h2 class="card-title" data-lang-key="selectCategories">Выберите товары и услуги</h2>
+                    <div class="categories-container" id="categoriesContainer">
+                        <!-- Categories will be inserted here -->
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="card">
+                        <h2 class="card-title" data-lang-key="yourInflation">Ваша личная инфляция</h2>
+                        <div class="result-display">
+                            <div class="result-label" data-lang-key="annualInflation">Годовая инфляция</div>
+                            <div class="result-value" id="personalInflation">0.0%</div>
+                            <div class="result-comparison" id="comparisonText">—</div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label" data-lang-key="avgRussia">Средняя по России</span>
+                                <span class="stat-value">8.5%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label" data-lang-key="totalWeight">Общий вес</span>
+                                <span class="stat-value" id="totalWeight">0%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label" data-lang-key="itemsSelected">Выбрано товаров</span>
+                                <span class="stat-value" id="itemsSelected">0</span>
+                            </div>
+                        </div>
+
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="resetWeights()" data-lang-key="reset">Сбросить</button>
+                            <button class="btn btn-secondary" onclick="shareResults()" data-lang-key="share">Поделиться</button>
+                        </div>
+
+                        <div class="reference-section">
+                            <h3 class="card-title" data-lang-key="reference">Справочные материалы</h3>
+                            <div id="referenceContainer">
+                                <!-- Reference materials will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                <p data-lang-key="footerData">Данные основаны на официальной статистике Федеральной службы государственной статистики (Росстат)</p>
+                <p style="margin-top: 8px; opacity: 0.6;" data-lang-key="footerUpdated">Обновлено: Февраль 2026</p>
+            </footer>
+        </div>
+    </section>
+
+    <script>
+        let currentLang = 'ru';
+        let weights = {};
+        let currentYear = 2026;
+
+        // Inflation data by year
+        const inflationDataByYear = {
+            2010: {
+                avgInflation: 6.9,
+                food: { avgInflation: 12.9, subcategories: { bread: 14.2, meat: 11.8, fish: 13.5, milk: 13.1, eggs: 16.8, oil: 12.4, fruits: 10.5, vegetables: 11.2, sugar: 15.3, pasta: 13.6 }},
+                alcohol: { avgInflation: 8.5, subcategories: { vodka: 8.2, wine: 9.1, beer: 8.3, cigarettes: 8.8 }},
+                clothing: { avgInflation: 4.2, subcategories: { outer_wear: 4.8, underwear: 3.5, shoes: 4.6, accessories: 3.9 }},
+                housing: { avgInflation: 5.8, subcategories: { rent: 4.5, electricity: 6.2, gas: 6.8, water: 5.9, heating: 6.4, maintenance: 5.3 }},
+                furniture: { avgInflation: 5.1, subcategories: { furniture: 5.5, appliances: 4.6, tableware: 5.2, textile: 5.4 }},
+                health: { avgInflation: 8.8, subcategories: { medicines: 9.6, medical_services: 8.5, dental: 9.1, medical_devices: 7.8 }},
+                transport: { avgInflation: 7.5, subcategories: { cars: 6.8, fuel: 9.2, public_transport: 6.5, taxi: 8.1, car_parts: 7.8, car_service: 7.2 }},
+                communication: { avgInflation: 2.8, subcategories: { mobile: 2.3, internet: 3.1, tv: 3.2, phones: 2.5 }},
+                recreation: { avgInflation: 6.5, subcategories: { cinema: 7.2, theater: 6.1, sports: 7.5, books: 5.8, tourism: 8.1 }},
+                education: { avgInflation: 5.9, subcategories: { preschool: 6.4, school: 5.2, university: 6.5, courses: 5.7 }},
+                restaurants: { avgInflation: 9.8, subcategories: { restaurants: 10.5, cafes: 9.2, fast_food: 10.8, hotels: 9.6 }},
+                other: { avgInflation: 5.5, subcategories: { banking: 4.6, insurance: 5.8, beauty: 6.5, jewelry: 5.1 }}
+            },
+            2011: {
+                avgInflation: 8.4,
+                food: { avgInflation: 15.2, subcategories: { bread: 16.5, meat: 14.2, fish: 15.8, milk: 15.4, eggs: 18.9, oil: 14.8, fruits: 12.8, vegetables: 13.5, sugar: 17.6, pasta: 15.9 }},
+                alcohol: { avgInflation: 10.2, subcategories: { vodka: 9.8, wine: 10.9, beer: 10.1, cigarettes: 10.6 }},
+                clothing: { avgInflation: 5.8, subcategories: { outer_wear: 6.4, underwear: 5.1, shoes: 6.2, accessories: 5.5 }},
+                housing: { avgInflation: 7.2, subcategories: { rent: 5.8, electricity: 7.8, gas: 8.4, water: 7.3, heating: 7.9, maintenance: 6.7 }},
+                furniture: { avgInflation: 6.5, subcategories: { furniture: 6.9, appliances: 6.0, tableware: 6.6, textile: 6.8 }},
+                health: { avgInflation: 10.5, subcategories: { medicines: 11.4, medical_services: 10.1, dental: 10.8, medical_devices: 9.4 }},
+                transport: { avgInflation: 9.2, subcategories: { cars: 8.4, fuel: 11.1, public_transport: 8.1, taxi: 9.8, car_parts: 9.5, car_service: 8.9 }},
+                communication: { avgInflation: 3.5, subcategories: { mobile: 2.9, internet: 3.9, tv: 4.0, phones: 3.2 }},
+                recreation: { avgInflation: 8.1, subcategories: { cinema: 8.9, theater: 7.6, sports: 9.2, books: 7.2, tourism: 9.8 }},
+                education: { avgInflation: 7.4, subcategories: { preschool: 8.0, school: 6.6, university: 8.2, courses: 7.1 }},
+                restaurants: { avgInflation: 11.5, subcategories: { restaurants: 12.3, cafes: 10.8, fast_food: 12.6, hotels: 11.2 }},
+                other: { avgInflation: 6.9, subcategories: { banking: 5.8, insurance: 7.2, beauty: 8.1, jewelry: 6.4 }}
+            },
+            2012: {
+                avgInflation: 5.1,
+                food: { avgInflation: 8.5, subcategories: { bread: 9.2, meat: 7.8, fish: 8.9, milk: 8.6, eggs: 10.5, oil: 8.2, fruits: 7.1, vegetables: 7.5, sugar: 9.8, pasta: 8.8 }},
+                alcohol: { avgInflation: 6.8, subcategories: { vodka: 6.5, wine: 7.2, beer: 6.7, cigarettes: 7.1 }},
+                clothing: { avgInflation: 3.5, subcategories: { outer_wear: 3.9, underwear: 3.0, shoes: 3.8, accessories: 3.3 }},
+                housing: { avgInflation: 4.8, subcategories: { rent: 3.8, electricity: 5.2, gas: 5.6, water: 4.9, heating: 5.3, maintenance: 4.5 }},
+                furniture: { avgInflation: 4.2, subcategories: { furniture: 4.5, appliances: 3.8, tableware: 4.3, textile: 4.4 }},
+                health: { avgInflation: 7.2, subcategories: { medicines: 7.8, medical_services: 6.9, dental: 7.4, medical_devices: 6.5 }},
+                transport: { avgInflation: 6.1, subcategories: { cars: 5.5, fuel: 7.5, public_transport: 5.4, taxi: 6.5, car_parts: 6.3, car_service: 5.9 }},
+                communication: { avgInflation: 2.2, subcategories: { mobile: 1.8, internet: 2.5, tv: 2.6, phones: 2.0 }},
+                recreation: { avgInflation: 5.4, subcategories: { cinema: 5.9, theater: 5.1, sports: 6.1, books: 4.8, tourism: 6.5 }},
+                education: { avgInflation: 4.9, subcategories: { preschool: 5.3, school: 4.4, university: 5.5, courses: 4.7 }},
+                restaurants: { avgInflation: 7.8, subcategories: { restaurants: 8.3, cafes: 7.2, fast_food: 8.5, hotels: 7.5 }},
+                other: { avgInflation: 4.6, subcategories: { banking: 3.9, insurance: 4.8, beauty: 5.4, jewelry: 4.3 }}
+            },
+            2013: {
+                avgInflation: 6.8,
+                food: { avgInflation: 10.2, subcategories: { bread: 11.1, meat: 9.5, fish: 10.6, milk: 10.3, eggs: 12.8, oil: 9.9, fruits: 8.5, vegetables: 9.2, sugar: 11.9, pasta: 10.5 }},
+                alcohol: { avgInflation: 8.5, subcategories: { vodka: 8.2, wine: 9.0, beer: 8.4, cigarettes: 8.9 }},
+                clothing: { avgInflation: 4.5, subcategories: { outer_wear: 5.0, underwear: 3.9, shoes: 4.9, accessories: 4.3 }},
+                housing: { avgInflation: 6.2, subcategories: { rent: 5.0, electricity: 6.7, gas: 7.2, water: 6.3, heating: 6.8, maintenance: 5.8 }},
+                furniture: { avgInflation: 5.5, subcategories: { furniture: 5.8, appliances: 5.0, tableware: 5.6, textile: 5.7 }},
+                health: { avgInflation: 9.1, subcategories: { medicines: 9.9, medical_services: 8.7, dental: 9.4, medical_devices: 8.2 }},
+                transport: { avgInflation: 7.8, subcategories: { cars: 7.1, fuel: 9.5, public_transport: 6.9, taxi: 8.3, car_parts: 8.0, car_service: 7.5 }},
+                communication: { avgInflation: 2.9, subcategories: { mobile: 2.4, internet: 3.2, tv: 3.3, phones: 2.6 }},
+                recreation: { avgInflation: 6.8, subcategories: { cinema: 7.5, theater: 6.4, sports: 7.8, books: 6.1, tourism: 8.3 }},
+                education: { avgInflation: 6.2, subcategories: { preschool: 6.7, school: 5.6, university: 6.9, courses: 6.0 }},
+                restaurants: { avgInflation: 9.8, subcategories: { restaurants: 10.5, cafes: 9.2, fast_food: 10.8, hotels: 9.6 }},
+                other: { avgInflation: 5.8, subcategories: { banking: 4.9, insurance: 6.1, beauty: 6.8, jewelry: 5.4 }}
+            },
+            2014: {
+                avgInflation: 7.8,
+                food: { avgInflation: 11.8, subcategories: { bread: 12.9, meat: 11.0, fish: 12.3, milk: 11.9, eggs: 14.8, oil: 11.5, fruits: 9.8, vegetables: 10.6, sugar: 13.8, pasta: 12.2 }},
+                alcohol: { avgInflation: 9.8, subcategories: { vodka: 9.4, wine: 10.4, beer: 9.7, cigarettes: 10.3 }},
+                clothing: { avgInflation: 5.2, subcategories: { outer_wear: 5.8, underwear: 4.5, shoes: 5.6, accessories: 4.9 }},
+                housing: { avgInflation: 7.1, subcategories: { rent: 5.8, electricity: 7.7, gas: 8.3, water: 7.2, heating: 7.8, maintenance: 6.7 }},
+                furniture: { avgInflation: 6.3, subcategories: { furniture: 6.7, appliances: 5.8, tableware: 6.4, textile: 6.6 }},
+                health: { avgInflation: 10.5, subcategories: { medicines: 11.4, medical_services: 10.0, dental: 10.8, medical_devices: 9.4 }},
+                transport: { avgInflation: 9.1, subcategories: { cars: 8.3, fuel: 11.0, public_transport: 8.0, taxi: 9.7, car_parts: 9.4, car_service: 8.8 }},
+                communication: { avgInflation: 3.3, subcategories: { mobile: 2.8, internet: 3.7, tv: 3.8, phones: 3.0 }},
+                recreation: { avgInflation: 7.8, subcategories: { cinema: 8.6, theater: 7.3, sports: 9.0, books: 7.0, tourism: 9.6 }},
+                education: { avgInflation: 7.1, subcategories: { preschool: 7.7, school: 6.4, university: 7.9, courses: 6.9 }},
+                restaurants: { avgInflation: 11.2, subcategories: { restaurants: 12.0, cafes: 10.5, fast_food: 12.3, hotels: 11.0 }},
+                other: { avgInflation: 6.7, subcategories: { banking: 5.6, insurance: 7.0, beauty: 7.8, jewelry: 6.2 }}
+            },
+            2015: {
+                avgInflation: 15.5,
+                food: { avgInflation: 20.5, subcategories: { bread: 22.5, meat: 19.2, fish: 21.5, milk: 20.8, eggs: 25.8, oil: 20.1, fruits: 17.2, vegetables: 18.5, sugar: 24.0, pasta: 21.3 }},
+                alcohol: { avgInflation: 17.2, subcategories: { vodka: 16.5, wine: 18.2, beer: 17.0, cigarettes: 18.0 }},
+                clothing: { avgInflation: 9.5, subcategories: { outer_wear: 10.6, underwear: 8.2, shoes: 10.2, accessories: 8.9 }},
+                housing: { avgInflation: 12.8, subcategories: { rent: 10.5, electricity: 13.9, gas: 15.0, water: 13.0, heating: 14.1, maintenance: 12.1 }},
+                furniture: { avgInflation: 11.5, subcategories: { furniture: 12.2, appliances: 10.5, tableware: 11.6, textile: 12.0 }},
+                health: { avgInflation: 18.8, subcategories: { medicines: 20.4, medical_services: 18.0, dental: 19.4, medical_devices: 16.9 }},
+                transport: { avgInflation: 16.5, subcategories: { cars: 15.0, fuel: 19.8, public_transport: 14.5, taxi: 17.5, car_parts: 17.0, car_service: 15.9 }},
+                communication: { avgInflation: 6.0, subcategories: { mobile: 5.0, internet: 6.7, tv: 6.9, phones: 5.4 }},
+                recreation: { avgInflation: 14.1, subcategories: { cinema: 15.5, theater: 13.2, sports: 16.2, books: 12.6, tourism: 17.3 }},
+                education: { avgInflation: 12.8, subcategories: { preschool: 13.9, school: 11.6, university: 14.3, courses: 12.5 }},
+                restaurants: { avgInflation: 20.1, subcategories: { restaurants: 21.5, cafes: 18.9, fast_food: 22.1, hotels: 19.8 }},
+                other: { avgInflation: 12.1, subcategories: { banking: 10.1, insurance: 12.6, beauty: 14.1, jewelry: 11.2 }}
+            },
+            2016: {
+                avgInflation: 7.1,
+                food: { avgInflation: 10.5, subcategories: { bread: 11.5, meat: 9.8, fish: 11.0, milk: 10.6, eggs: 13.2, oil: 10.3, fruits: 8.8, vegetables: 9.5, sugar: 12.3, pasta: 10.8 }},
+                alcohol: { avgInflation: 8.8, subcategories: { vodka: 8.5, wine: 9.3, beer: 8.7, cigarettes: 9.2 }},
+                clothing: { avgInflation: 4.8, subcategories: { outer_wear: 5.3, underwear: 4.1, shoes: 5.2, accessories: 4.5 }},
+                housing: { avgInflation: 6.5, subcategories: { rent: 5.3, electricity: 7.0, gas: 7.6, water: 6.6, heating: 7.2, maintenance: 6.1 }},
+                furniture: { avgInflation: 5.8, subcategories: { furniture: 6.2, appliances: 5.3, tableware: 5.9, textile: 6.1 }},
+                health: { avgInflation: 9.5, subcategories: { medicines: 10.3, medical_services: 9.1, dental: 9.8, medical_devices: 8.5 }},
+                transport: { avgInflation: 8.3, subcategories: { cars: 7.6, fuel: 10.0, public_transport: 7.3, taxi: 8.8, car_parts: 8.5, car_service: 8.0 }},
+                communication: { avgInflation: 3.0, subcategories: { mobile: 2.5, internet: 3.3, tv: 3.4, phones: 2.7 }},
+                recreation: { avgInflation: 7.1, subcategories: { cinema: 7.8, theater: 6.6, sports: 8.1, books: 6.3, tourism: 8.6 }},
+                education: { avgInflation: 6.5, subcategories: { preschool: 7.0, school: 5.8, university: 7.2, courses: 6.3 }},
+                restaurants: { avgInflation: 10.2, subcategories: { restaurants: 10.9, cafes: 9.5, fast_food: 11.2, hotels: 10.0 }},
+                other: { avgInflation: 6.1, subcategories: { banking: 5.1, insurance: 6.4, beauty: 7.1, jewelry: 5.7 }}
+            },
+            2017: {
+                avgInflation: 3.7,
+                food: { avgInflation: 5.2, subcategories: { bread: 5.7, meat: 4.9, fish: 5.5, milk: 5.3, eggs: 6.6, oil: 5.1, fruits: 4.4, vegetables: 4.7, sugar: 6.1, pasta: 5.4 }},
+                alcohol: { avgInflation: 4.4, subcategories: { vodka: 4.2, wine: 4.6, beer: 4.3, cigarettes: 4.6 }},
+                clothing: { avgInflation: 2.4, subcategories: { outer_wear: 2.6, underwear: 2.0, shoes: 2.6, accessories: 2.2 }},
+                housing: { avgInflation: 3.2, subcategories: { rent: 2.6, electricity: 3.5, gas: 3.8, water: 3.3, heating: 3.6, maintenance: 3.0 }},
+                furniture: { avgInflation: 2.9, subcategories: { furniture: 3.1, appliances: 2.6, tableware: 2.9, textile: 3.0 }},
+                health: { avgInflation: 4.7, subcategories: { medicines: 5.1, medical_services: 4.5, dental: 4.9, medical_devices: 4.2 }},
+                transport: { avgInflation: 4.1, subcategories: { cars: 3.8, fuel: 5.0, public_transport: 3.6, taxi: 4.4, car_parts: 4.2, car_service: 4.0 }},
+                communication: { avgInflation: 1.5, subcategories: { mobile: 1.2, internet: 1.6, tv: 1.7, phones: 1.3 }},
+                recreation: { avgInflation: 3.5, subcategories: { cinema: 3.9, theater: 3.3, sports: 4.0, books: 3.1, tourism: 4.3 }},
+                education: { avgInflation: 3.2, subcategories: { preschool: 3.5, school: 2.9, university: 3.6, courses: 3.1 }},
+                restaurants: { avgInflation: 5.1, subcategories: { restaurants: 5.4, cafes: 4.7, fast_food: 5.6, hotels: 5.0 }},
+                other: { avgInflation: 3.0, subcategories: { banking: 2.5, insurance: 3.2, beauty: 3.5, jewelry: 2.8 }}
+            },
+            2018: {
+                avgInflation: 2.9,
+                food: { avgInflation: 4.1, subcategories: { bread: 4.5, meat: 3.9, fish: 4.3, milk: 4.2, eggs: 5.2, oil: 4.0, fruits: 3.5, vegetables: 3.7, sugar: 4.8, pasta: 4.3 }},
+                alcohol: { avgInflation: 3.5, subcategories: { vodka: 3.3, wine: 3.7, beer: 3.4, cigarettes: 3.7 }},
+                clothing: { avgInflation: 1.9, subcategories: { outer_wear: 2.1, underwear: 1.6, shoes: 2.0, accessories: 1.7 }},
+                housing: { avgInflation: 2.6, subcategories: { rent: 2.1, electricity: 2.8, gas: 3.0, water: 2.6, heating: 2.9, maintenance: 2.4 }},
+                furniture: { avgInflation: 2.3, subcategories: { furniture: 2.5, appliances: 2.1, tableware: 2.3, textile: 2.4 }},
+                health: { avgInflation: 3.7, subcategories: { medicines: 4.0, medical_services: 3.5, dental: 3.9, medical_devices: 3.3 }},
+                transport: { avgInflation: 3.3, subcategories: { cars: 3.0, fuel: 4.0, public_transport: 2.9, taxi: 3.5, car_parts: 3.4, car_service: 3.2 }},
+                communication: { avgInflation: 1.2, subcategories: { mobile: 1.0, internet: 1.3, tv: 1.4, phones: 1.0 }},
+                recreation: { avgInflation: 2.8, subcategories: { cinema: 3.1, theater: 2.6, sports: 3.2, books: 2.5, tourism: 3.4 }},
+                education: { avgInflation: 2.5, subcategories: { preschool: 2.8, school: 2.3, university: 2.9, courses: 2.5 }},
+                restaurants: { avgInflation: 4.0, subcategories: { restaurants: 4.3, cafes: 3.7, fast_food: 4.4, hotels: 3.9 }},
+                other: { avgInflation: 2.4, subcategories: { banking: 2.0, insurance: 2.5, beauty: 2.8, jewelry: 2.2 }}
+            },
+            2019: {
+                avgInflation: 4.5,
+                food: { avgInflation: 6.3, subcategories: { bread: 6.9, meat: 6.0, fish: 6.6, milk: 6.4, eggs: 8.0, oil: 6.2, fruits: 5.4, vegetables: 5.8, sugar: 7.4, pasta: 6.6 }},
+                alcohol: { avgInflation: 5.4, subcategories: { vodka: 5.1, wine: 5.7, beer: 5.3, cigarettes: 5.7 }},
+                clothing: { avgInflation: 3.0, subcategories: { outer_wear: 3.3, underwear: 2.5, shoes: 3.2, accessories: 2.7 }},
+                housing: { avgInflation: 4.1, subcategories: { rent: 3.3, electricity: 4.4, gas: 4.8, water: 4.2, heating: 4.5, maintenance: 3.8 }},
+                furniture: { avgInflation: 3.6, subcategories: { furniture: 3.9, appliances: 3.3, tableware: 3.7, textile: 3.8 }},
+                health: { avgInflation: 5.8, subcategories: { medicines: 6.3, medical_services: 5.5, dental: 6.0, medical_devices: 5.2 }},
+                transport: { avgInflation: 5.1, subcategories: { cars: 4.7, fuel: 6.2, public_transport: 4.5, taxi: 5.4, car_parts: 5.2, car_service: 4.9 }},
+                communication: { avgInflation: 1.9, subcategories: { mobile: 1.6, internet: 2.1, tv: 2.2, phones: 1.6 }},
+                recreation: { avgInflation: 4.3, subcategories: { cinema: 4.7, theater: 4.0, sports: 4.9, books: 3.8, tourism: 5.2 }},
+                education: { avgInflation: 3.9, subcategories: { preschool: 4.2, school: 3.5, university: 4.4, courses: 3.8 }},
+                restaurants: { avgInflation: 6.2, subcategories: { restaurants: 6.6, cafes: 5.7, fast_food: 6.8, hotels: 6.1 }},
+                other: { avgInflation: 3.7, subcategories: { banking: 3.1, insurance: 3.9, beauty: 4.3, jewelry: 3.4 }}
+            },
+            2020: {
+                avgInflation: 3.4,
+                food: { avgInflation: 4.8, subcategories: { bread: 5.2, meat: 4.5, fish: 5.0, milk: 4.8, eggs: 6.0, oil: 4.7, fruits: 4.1, vegetables: 4.4, sugar: 5.6, pasta: 5.0 }},
+                alcohol: { avgInflation: 4.1, subcategories: { vodka: 3.9, wine: 4.3, beer: 4.0, cigarettes: 4.3 }},
+                clothing: { avgInflation: 2.3, subcategories: { outer_wear: 2.5, underwear: 1.9, shoes: 2.4, accessories: 2.0 }},
+                housing: { avgInflation: 3.1, subcategories: { rent: 2.5, electricity: 3.4, gas: 3.6, water: 3.2, heating: 3.5, maintenance: 2.9 }},
+                furniture: { avgInflation: 2.7, subcategories: { furniture: 2.9, appliances: 2.5, tableware: 2.8, textile: 2.9 }},
+                health: { avgInflation: 4.4, subcategories: { medicines: 4.8, medical_services: 4.2, dental: 4.6, medical_devices: 4.0 }},
+                transport: { avgInflation: 3.9, subcategories: { cars: 3.6, fuel: 4.7, public_transport: 3.4, taxi: 4.1, car_parts: 4.0, car_service: 3.7 }},
+                communication: { avgInflation: 1.4, subcategories: { mobile: 1.2, internet: 1.6, tv: 1.7, phones: 1.2 }},
+                recreation: { avgInflation: 3.3, subcategories: { cinema: 3.6, theater: 3.0, sports: 3.7, books: 2.9, tourism: 4.0 }},
+                education: { avgInflation: 3.0, subcategories: { preschool: 3.2, school: 2.7, university: 3.3, courses: 2.9 }},
+                restaurants: { avgInflation: 4.7, subcategories: { restaurants: 5.0, cafes: 4.4, fast_food: 5.1, hotels: 4.6 }},
+                other: { avgInflation: 2.8, subcategories: { banking: 2.4, insurance: 3.0, beauty: 3.3, jewelry: 2.6 }}
+            },
+            2021: {
+                avgInflation: 8.4,
+                food: { avgInflation: 11.8, subcategories: { bread: 12.9, meat: 11.0, fish: 12.3, milk: 11.9, eggs: 14.8, oil: 11.5, fruits: 9.8, vegetables: 10.6, sugar: 13.8, pasta: 12.2 }},
+                alcohol: { avgInflation: 10.1, subcategories: { vodka: 9.7, wine: 10.7, beer: 10.0, cigarettes: 10.5 }},
+                clothing: { avgInflation: 5.6, subcategories: { outer_wear: 6.2, underwear: 4.8, shoes: 6.0, accessories: 5.2 }},
+                housing: { avgInflation: 7.6, subcategories: { rent: 6.2, electricity: 8.3, gas: 8.9, water: 7.8, heating: 8.4, maintenance: 7.2 }},
+                furniture: { avgInflation: 6.7, subcategories: { furniture: 7.1, appliances: 6.1, tableware: 6.8, textile: 7.0 }},
+                health: { avgInflation: 10.8, subcategories: { medicines: 11.7, medical_services: 10.3, dental: 11.1, medical_devices: 9.7 }},
+                transport: { avgInflation: 9.5, subcategories: { cars: 8.7, fuel: 11.5, public_transport: 8.3, taxi: 10.1, car_parts: 9.8, car_service: 9.2 }},
+                communication: { avgInflation: 3.5, subcategories: { mobile: 2.9, internet: 3.9, tv: 4.0, phones: 3.2 }},
+                recreation: { avgInflation: 8.1, subcategories: { cinema: 8.9, theater: 7.6, sports: 9.2, books: 7.2, tourism: 9.8 }},
+                education: { avgInflation: 7.4, subcategories: { preschool: 8.0, school: 6.6, university: 8.2, courses: 7.1 }},
+                restaurants: { avgInflation: 11.5, subcategories: { restaurants: 12.3, cafes: 10.8, fast_food: 12.6, hotels: 11.2 }},
+                other: { avgInflation: 6.9, subcategories: { banking: 5.8, insurance: 7.2, beauty: 8.1, jewelry: 6.4 }}
+            },
+            2022: {
+                avgInflation: 11.9,
+                food: { avgInflation: 16.8, subcategories: { bread: 18.4, meat: 15.6, fish: 17.5, milk: 16.9, eggs: 21.0, oil: 16.4, fruits: 14.0, vegetables: 15.1, sugar: 19.6, pasta: 17.3 }},
+                alcohol: { avgInflation: 14.3, subcategories: { vodka: 13.7, wine: 15.2, beer: 14.2, cigarettes: 15.0 }},
+                clothing: { avgInflation: 8.0, subcategories: { outer_wear: 8.8, underwear: 6.8, shoes: 8.5, accessories: 7.4 }},
+                housing: { avgInflation: 10.8, subcategories: { rent: 8.8, electricity: 11.8, gas: 12.6, water: 11.0, heating: 11.9, maintenance: 10.2 }},
+                furniture: { avgInflation: 9.5, subcategories: { furniture: 10.1, appliances: 8.7, tableware: 9.7, textile: 9.9 }},
+                health: { avgInflation: 15.3, subcategories: { medicines: 16.6, medical_services: 14.6, dental: 15.7, medical_devices: 13.7 }},
+                transport: { avgInflation: 13.5, subcategories: { cars: 12.3, fuel: 16.3, public_transport: 11.8, taxi: 14.3, car_parts: 13.9, car_service: 13.0 }},
+                communication: { avgInflation: 5.0, subcategories: { mobile: 4.1, internet: 5.5, tv: 5.7, phones: 4.5 }},
+                recreation: { avgInflation: 11.5, subcategories: { cinema: 12.6, theater: 10.8, sports: 13.0, books: 10.2, tourism: 13.9 }},
+                education: { avgInflation: 10.5, subcategories: { preschool: 11.4, school: 9.4, university: 11.6, courses: 10.1 }},
+                restaurants: { avgInflation: 16.3, subcategories: { restaurants: 17.4, cafes: 15.3, fast_food: 17.9, hotels: 15.9 }},
+                other: { avgInflation: 9.8, subcategories: { banking: 8.2, insurance: 10.2, beauty: 11.5, jewelry: 9.1 }}
+            },
+            2023: {
+                avgInflation: 5.9,
+                food: { avgInflation: 8.3, subcategories: { bread: 9.1, meat: 7.8, fish: 8.7, milk: 8.4, eggs: 10.5, oil: 8.2, fruits: 7.0, vegetables: 7.5, sugar: 9.8, pasta: 8.7 }},
+                alcohol: { avgInflation: 7.1, subcategories: { vodka: 6.8, wine: 7.6, beer: 7.1, cigarettes: 7.5 }},
+                clothing: { avgInflation: 4.0, subcategories: { outer_wear: 4.4, underwear: 3.4, shoes: 4.2, accessories: 3.7 }},
+                housing: { avgInflation: 5.4, subcategories: { rent: 4.4, electricity: 5.9, gas: 6.3, water: 5.5, heating: 5.9, maintenance: 5.1 }},
+                furniture: { avgInflation: 4.8, subcategories: { furniture: 5.0, appliances: 4.3, tableware: 4.8, textile: 4.9 }},
+                health: { avgInflation: 7.6, subcategories: { medicines: 8.3, medical_services: 7.3, dental: 7.8, medical_devices: 6.8 }},
+                transport: { avgInflation: 6.7, subcategories: { cars: 6.1, fuel: 8.1, public_transport: 5.9, taxi: 7.1, car_parts: 6.9, car_service: 6.5 }},
+                communication: { avgInflation: 2.5, subcategories: { mobile: 2.0, internet: 2.7, tv: 2.8, phones: 2.2 }},
+                recreation: { avgInflation: 5.7, subcategories: { cinema: 6.3, theater: 5.4, sports: 6.5, books: 5.1, tourism: 6.9 }},
+                education: { avgInflation: 5.2, subcategories: { preschool: 5.6, school: 4.7, university: 5.8, courses: 5.0 }},
+                restaurants: { avgInflation: 8.1, subcategories: { restaurants: 8.7, cafes: 7.6, fast_food: 8.9, hotels: 7.9 }},
+                other: { avgInflation: 4.9, subcategories: { banking: 4.1, insurance: 5.1, beauty: 5.7, jewelry: 4.5 }}
+            },
+            2024: {
+                avgInflation: 8.9,
+                food: { avgInflation: 12.5, subcategories: { bread: 13.7, meat: 11.7, fish: 13.1, milk: 12.6, eggs: 15.7, oil: 12.3, fruits: 10.5, vegetables: 11.3, sugar: 14.7, pasta: 13.0 }},
+                alcohol: { avgInflation: 10.7, subcategories: { vodka: 10.3, wine: 11.4, beer: 10.6, cigarettes: 11.2 }},
+                clothing: { avgInflation: 6.0, subcategories: { outer_wear: 6.6, underwear: 5.1, shoes: 6.4, accessories: 5.5 }},
+                housing: { avgInflation: 8.1, subcategories: { rent: 6.6, electricity: 8.8, gas: 9.5, water: 8.3, heating: 9.0, maintenance: 7.7 }},
+                furniture: { avgInflation: 7.2, subcategories: { furniture: 7.6, appliances: 6.5, tableware: 7.3, textile: 7.5 }},
+                health: { avgInflation: 11.4, subcategories: { medicines: 12.4, medical_services: 10.9, dental: 11.7, medical_devices: 10.2 }},
+                transport: { avgInflation: 10.1, subcategories: { cars: 9.2, fuel: 12.2, public_transport: 8.8, taxi: 10.7, car_parts: 10.4, car_service: 9.7 }},
+                communication: { avgInflation: 3.8, subcategories: { mobile: 3.1, internet: 4.2, tv: 4.3, phones: 3.4 }},
+                recreation: { avgInflation: 8.6, subcategories: { cinema: 9.4, theater: 8.1, sports: 9.7, books: 7.6, tourism: 10.4 }},
+                education: { avgInflation: 7.8, subcategories: { preschool: 8.5, school: 7.1, university: 8.7, courses: 7.6 }},
+                restaurants: { avgInflation: 12.2, subcategories: { restaurants: 13.1, cafes: 11.5, fast_food: 13.4, hotels: 12.0 }},
+                other: { avgInflation: 7.3, subcategories: { banking: 6.1, insurance: 7.6, beauty: 8.5, jewelry: 6.8 }}
+            },
+            2025: {
+                avgInflation: 7.5,
+                food: { avgInflation: 10.5, subcategories: { bread: 11.5, meat: 9.8, fish: 11.0, milk: 10.6, eggs: 13.2, oil: 10.3, fruits: 8.8, vegetables: 9.5, sugar: 12.3, pasta: 10.8 }},
+                alcohol: { avgInflation: 9.0, subcategories: { vodka: 8.7, wine: 9.6, beer: 8.9, cigarettes: 9.4 }},
+                clothing: { avgInflation: 5.0, subcategories: { outer_wear: 5.5, underwear: 4.3, shoes: 5.4, accessories: 4.6 }},
+                housing: { avgInflation: 6.8, subcategories: { rent: 5.5, electricity: 7.4, gas: 7.9, water: 6.9, heating: 7.5, maintenance: 6.4 }},
+                furniture: { avgInflation: 6.0, subcategories: { furniture: 6.4, appliances: 5.5, tableware: 6.1, textile: 6.3 }},
+                health: { avgInflation: 9.6, subcategories: { medicines: 10.4, medical_services: 9.2, dental: 9.9, medical_devices: 8.6 }},
+                transport: { avgInflation: 8.5, subcategories: { cars: 7.7, fuel: 10.3, public_transport: 7.4, taxi: 9.0, car_parts: 8.7, car_service: 8.2 }},
+                communication: { avgInflation: 3.2, subcategories: { mobile: 2.6, internet: 3.5, tv: 3.6, phones: 2.9 }},
+                recreation: { avgInflation: 7.2, subcategories: { cinema: 7.9, theater: 6.8, sports: 8.1, books: 6.4, tourism: 8.7 }},
+                education: { avgInflation: 6.5, subcategories: { preschool: 7.1, school: 5.9, university: 7.3, courses: 6.4 }},
+                restaurants: { avgInflation: 10.2, subcategories: { restaurants: 11.0, cafes: 9.6, fast_food: 11.2, hotels: 10.0 }},
+                other: { avgInflation: 6.1, subcategories: { banking: 5.1, insurance: 6.4, beauty: 7.1, jewelry: 5.7 }}
+            },
+            2026: {
+                avgInflation: 8.5,
+                food: { avgInflation: 9.8, subcategories: { bread: 11.2, meat: 8.5, fish: 12.8, milk: 9.6, eggs: 15.3, oil: 10.1, fruits: 7.4, vegetables: 6.9, sugar: 13.7, pasta: 8.2 }},
+                alcohol: { avgInflation: 12.5, subcategories: { vodka: 11.8, wine: 13.2, beer: 12.4, cigarettes: 12.9 }},
+                clothing: { avgInflation: 5.2, subcategories: { outer_wear: 5.8, underwear: 4.3, shoes: 5.6, accessories: 4.9 }},
+                housing: { avgInflation: 7.8, subcategories: { rent: 6.2, electricity: 8.5, gas: 9.1, water: 7.8, heating: 8.2, maintenance: 7.4 }},
+                furniture: { avgInflation: 6.4, subcategories: { furniture: 6.8, appliances: 5.9, tableware: 6.2, textile: 6.7 }},
+                health: { avgInflation: 11.2, subcategories: { medicines: 12.5, medical_services: 10.8, dental: 11.4, medical_devices: 9.9 }},
+                transport: { avgInflation: 10.5, subcategories: { cars: 9.2, fuel: 13.8, public_transport: 8.5, taxi: 11.2, car_parts: 10.8, car_service: 9.6 }},
+                communication: { avgInflation: 3.8, subcategories: { mobile: 3.2, internet: 4.1, tv: 4.2, phones: 3.5 }},
+                recreation: { avgInflation: 8.9, subcategories: { cinema: 9.5, theater: 8.2, sports: 9.8, books: 7.4, tourism: 10.2 }},
+                education: { avgInflation: 7.3, subcategories: { preschool: 7.8, school: 6.5, university: 7.9, courses: 7.1 }},
+                restaurants: { avgInflation: 13.1, subcategories: { restaurants: 13.8, cafes: 12.5, fast_food: 14.2, hotels: 12.8 }},
+                other: { avgInflation: 6.9, subcategories: { banking: 5.8, insurance: 7.2, beauty: 8.1, jewelry: 6.4 }}
+            }
+        };
+
+        function updateYear(year) {
+            currentYear = parseInt(year);
+            const yearData = inflationDataByYear[currentYear];
+            
+            // Update average inflation display
+            const avgInflationElements = document.querySelectorAll('.stat-value');
+            if (avgInflationElements[0]) {
+                avgInflationElements[0].textContent = yearData.avgInflation + '%';
+            }
+            
+            // Re-render categories with new inflation data
+            renderCategories();
+            calculatePersonalInflation();
+        }
+
+        // Generate particles
+        function createParticles() {
+            const bgAnimation = document.querySelector('.bg-animation');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 6 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                bgAnimation.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // Scroll to calculator
+        function scrollToCalculator() {
+            const calculatorSection = document.getElementById('calculatorSection');
+            calculatorSection.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+                calculatorSection.classList.add('visible');
+            }, 300);
+        }
+
+        // Intersection Observer for calculator section
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        observer.observe(document.getElementById('calculatorSection'));
+
+        const translations = {
+            ru: {
+                heroTitle: 'Личная Инфляция',
+                heroSubtitle: 'Узнайте, как изменение цен влияет именно на ваш бюджет',
+                heroStat1: 'Товаров',
+                heroStat2: 'Категорий',
+                heroStat3: 'Средняя инфляция',
+                heroButton: 'Рассчитать мою инфляцию',
+                title: 'Калькулятор личной инфляции',
+                subtitle: 'Рассчитайте вашу персональную инфляцию на основе данных Росстата',
+                selectCategories: 'Выберите товары и услуги',
+                yourInflation: 'Ваша личная инфляция',
+                annualInflation: 'Годовая инфляция',
+                avgRussia: 'Средняя по России',
+                totalWeight: 'Общий вес',
+                itemsSelected: 'Выбрано товаров',
+                reset: 'Сбросить',
+                share: 'Поделиться',
+                reference: 'Справочные материалы',
+                footerData: 'Данные основаны на официальной статистике Федеральной службы государственной статистики (Росстат)',
+                footerUpdated: 'Обновлено: Февраль 2026',
+                higher: 'выше средней',
+                lower: 'ниже средней',
+                equal: 'равна средней',
+                remaining: 'Осталось распределить',
+                excess: 'Превышение на',
+                specify: 'Укажите доли товаров',
+                yearLabel: 'Год:'
+            },
+            en: {
+                heroTitle: 'Personal Inflation',
+                heroSubtitle: 'Discover how price changes affect your budget',
+                heroStat1: 'Items',
+                heroStat2: 'Categories',
+                heroStat3: 'Average inflation',
+                heroButton: 'Calculate My Inflation',
+                title: 'Personal Inflation Calculator',
+                subtitle: 'Calculate your personal inflation based on Rosstat data',
+                selectCategories: 'Select goods and services',
+                yourInflation: 'Your Personal Inflation',
+                annualInflation: 'Annual Inflation',
+                avgRussia: 'Russia Average',
+                totalWeight: 'Total Weight',
+                itemsSelected: 'Items Selected',
+                reset: 'Reset',
+                share: 'Share',
+                reference: 'Reference Materials',
+                footerData: 'Data based on official statistics of the Federal State Statistics Service (Rosstat)',
+                footerUpdated: 'Updated: February 2026',
+                higher: 'higher than average',
+                lower: 'lower than average',
+                equal: 'equal to average',
+                remaining: 'Remaining to distribute',
+                excess: 'Excess of',
+                specify: 'Specify item shares',
+                yearLabel: 'Year:'
+            }
+        };
+
+        const categories = [
+            {
+                id: 'food',
+                name: { ru: 'Продукты питания', en: 'Food Products' },
+                icon: '🛒',
+                avgInflation: 9.8,
+                subcategories: [
+                    { id: 'bread', name: { ru: 'Хлеб и хлебобулочные изделия', en: 'Bread and bakery products' }, inflation: 11.2 },
+                    { id: 'meat', name: { ru: 'Мясо и мясопродукты', en: 'Meat and meat products' }, inflation: 8.5 },
+                    { id: 'fish', name: { ru: 'Рыба и морепродукты', en: 'Fish and seafood' }, inflation: 12.8 },
+                    { id: 'milk', name: { ru: 'Молоко и молочная продукция', en: 'Milk and dairy products' }, inflation: 9.6 },
+                    { id: 'eggs', name: { ru: 'Яйца', en: 'Eggs' }, inflation: 15.3 },
+                    { id: 'oil', name: { ru: 'Масло и жиры', en: 'Oils and fats' }, inflation: 10.1 },
+                    { id: 'fruits', name: { ru: 'Фрукты и ягоды', en: 'Fruits and berries' }, inflation: 7.4 },
+                    { id: 'vegetables', name: { ru: 'Овощи', en: 'Vegetables' }, inflation: 6.9 },
+                    { id: 'sugar', name: { ru: 'Сахар', en: 'Sugar' }, inflation: 13.7 },
+                    { id: 'pasta', name: { ru: 'Макаронные изделия', en: 'Pasta products' }, inflation: 8.2 }
+                ]
+            },
+            {
+                id: 'alcohol',
+                name: { ru: 'Алкоголь и табак', en: 'Alcohol and Tobacco' },
+                icon: '🍷',
+                avgInflation: 12.5,
+                subcategories: [
+                    { id: 'vodka', name: { ru: 'Водка', en: 'Vodka' }, inflation: 11.8 },
+                    { id: 'wine', name: { ru: 'Вино', en: 'Wine' }, inflation: 13.2 },
+                    { id: 'beer', name: { ru: 'Пиво', en: 'Beer' }, inflation: 12.4 },
+                    { id: 'cigarettes', name: { ru: 'Сигареты', en: 'Cigarettes' }, inflation: 12.9 }
+                ]
+            },
+            {
+                id: 'clothing',
+                name: { ru: 'Одежда и обувь', en: 'Clothing and Footwear' },
+                icon: '👔',
+                avgInflation: 5.2,
+                subcategories: [
+                    { id: 'outer_wear', name: { ru: 'Верхняя одежда', en: 'Outerwear' }, inflation: 5.8 },
+                    { id: 'underwear', name: { ru: 'Нижнее белье', en: 'Underwear' }, inflation: 4.3 },
+                    { id: 'shoes', name: { ru: 'Обувь', en: 'Footwear' }, inflation: 5.6 },
+                    { id: 'accessories', name: { ru: 'Аксессуары', en: 'Accessories' }, inflation: 4.9 }
+                ]
+            },
+            {
+                id: 'housing',
+                name: { ru: 'Жилье и ЖКХ', en: 'Housing and Utilities' },
+                icon: '🏠',
+                avgInflation: 7.8,
+                subcategories: [
+                    { id: 'rent', name: { ru: 'Аренда жилья', en: 'Housing rent' }, inflation: 6.2 },
+                    { id: 'electricity', name: { ru: 'Электроэнергия', en: 'Electricity' }, inflation: 8.5 },
+                    { id: 'gas', name: { ru: 'Газ', en: 'Gas' }, inflation: 9.1 },
+                    { id: 'water', name: { ru: 'Водоснабжение', en: 'Water supply' }, inflation: 7.8 },
+                    { id: 'heating', name: { ru: 'Отопление', en: 'Heating' }, inflation: 8.2 },
+                    { id: 'maintenance', name: { ru: 'Содержание и ремонт', en: 'Maintenance and repair' }, inflation: 7.4 }
+                ]
+            },
+            {
+                id: 'furniture',
+                name: { ru: 'Мебель и товары для дома', en: 'Furniture and Household Items' },
+                icon: '🛋️',
+                avgInflation: 6.4,
+                subcategories: [
+                    { id: 'furniture', name: { ru: 'Мебель', en: 'Furniture' }, inflation: 6.8 },
+                    { id: 'appliances', name: { ru: 'Бытовая техника', en: 'Household appliances' }, inflation: 5.9 },
+                    { id: 'tableware', name: { ru: 'Посуда и столовые приборы', en: 'Tableware and cutlery' }, inflation: 6.2 },
+                    { id: 'textile', name: { ru: 'Текстиль для дома', en: 'Home textiles' }, inflation: 6.7 }
+                ]
+            },
+            {
+                id: 'health',
+                name: { ru: 'Здравоохранение', en: 'Healthcare' },
+                icon: '💊',
+                avgInflation: 11.2,
+                subcategories: [
+                    { id: 'medicines', name: { ru: 'Лекарства', en: 'Medicines' }, inflation: 12.5 },
+                    { id: 'medical_services', name: { ru: 'Медицинские услуги', en: 'Medical services' }, inflation: 10.8 },
+                    { id: 'dental', name: { ru: 'Стоматологические услуги', en: 'Dental services' }, inflation: 11.4 },
+                    { id: 'medical_devices', name: { ru: 'Медицинские изделия', en: 'Medical devices' }, inflation: 9.9 }
+                ]
+            },
+            {
+                id: 'transport',
+                name: { ru: 'Транспорт', en: 'Transport' },
+                icon: '🚗',
+                avgInflation: 10.5,
+                subcategories: [
+                    { id: 'cars', name: { ru: 'Автомобили', en: 'Cars' }, inflation: 9.2 },
+                    { id: 'fuel', name: { ru: 'Бензин', en: 'Gasoline' }, inflation: 13.8 },
+                    { id: 'public_transport', name: { ru: 'Общественный транспорт', en: 'Public transport' }, inflation: 8.5 },
+                    { id: 'taxi', name: { ru: 'Такси', en: 'Taxi' }, inflation: 11.2 },
+                    { id: 'car_parts', name: { ru: 'Запчасти', en: 'Car parts' }, inflation: 10.8 },
+                    { id: 'car_service', name: { ru: 'Ремонт и обслуживание', en: 'Repair and maintenance' }, inflation: 9.6 }
+                ]
+            },
+            {
+                id: 'communication',
+                name: { ru: 'Связь', en: 'Communication' },
+                icon: '📱',
+                avgInflation: 3.8,
+                subcategories: [
+                    { id: 'mobile', name: { ru: 'Мобильная связь', en: 'Mobile services' }, inflation: 3.2 },
+                    { id: 'internet', name: { ru: 'Интернет', en: 'Internet' }, inflation: 4.1 },
+                    { id: 'tv', name: { ru: 'Телевидение', en: 'Television' }, inflation: 4.2 },
+                    { id: 'phones', name: { ru: 'Телефоны и смартфоны', en: 'Phones and smartphones' }, inflation: 3.5 }
+                ]
+            },
+            {
+                id: 'recreation',
+                name: { ru: 'Отдых и культура', en: 'Recreation and Culture' },
+                icon: '🎭',
+                avgInflation: 8.9,
+                subcategories: [
+                    { id: 'cinema', name: { ru: 'Кинотеатры', en: 'Cinemas' }, inflation: 9.5 },
+                    { id: 'theater', name: { ru: 'Театры', en: 'Theaters' }, inflation: 8.2 },
+                    { id: 'sports', name: { ru: 'Спортивные занятия', en: 'Sports activities' }, inflation: 9.8 },
+                    { id: 'books', name: { ru: 'Книги', en: 'Books' }, inflation: 7.4 },
+                    { id: 'tourism', name: { ru: 'Туристические услуги', en: 'Tourism services' }, inflation: 10.2 }
+                ]
+            },
+            {
+                id: 'education',
+                name: { ru: 'Образование', en: 'Education' },
+                icon: '📚',
+                avgInflation: 7.3,
+                subcategories: [
+                    { id: 'preschool', name: { ru: 'Дошкольное образование', en: 'Preschool education' }, inflation: 7.8 },
+                    { id: 'school', name: { ru: 'Школьное образование', en: 'School education' }, inflation: 6.5 },
+                    { id: 'university', name: { ru: 'Высшее образование', en: 'Higher education' }, inflation: 7.9 },
+                    { id: 'courses', name: { ru: 'Курсы и тренинги', en: 'Courses and trainings' }, inflation: 7.1 }
+                ]
+            },
+            {
+                id: 'restaurants',
+                name: { ru: 'Рестораны и гостиницы', en: 'Restaurants and Hotels' },
+                icon: '🍽️',
+                avgInflation: 13.1,
+                subcategories: [
+                    { id: 'restaurants', name: { ru: 'Рестораны', en: 'Restaurants' }, inflation: 13.8 },
+                    { id: 'cafes', name: { ru: 'Кафе', en: 'Cafes' }, inflation: 12.5 },
+                    { id: 'fast_food', name: { ru: 'Фастфуд', en: 'Fast food' }, inflation: 14.2 },
+                    { id: 'hotels', name: { ru: 'Гостиницы', en: 'Hotels' }, inflation: 12.8 }
+                ]
+            },
+            {
+                id: 'other',
+                name: { ru: 'Прочие товары и услуги', en: 'Other Goods and Services' },
+                icon: '💼',
+                avgInflation: 6.9,
+                subcategories: [
+                    { id: 'banking', name: { ru: 'Банковские услуги', en: 'Banking services' }, inflation: 5.8 },
+                    { id: 'insurance', name: { ru: 'Страхование', en: 'Insurance' }, inflation: 7.2 },
+                    { id: 'beauty', name: { ru: 'Парикмахерские услуги', en: 'Hairdressing services' }, inflation: 8.1 },
+                    { id: 'jewelry', name: { ru: 'Ювелирные изделия', en: 'Jewelry' }, inflation: 6.4 }
+                ]
+            }
+        ];
+
+        const referenceData = {
+            ru: [
+                {
+                    title: 'Что такое инфляция?',
+                    content: 'Инфляция — это устойчивый рост общего уровня цен на товары и услуги в экономике. При инфляции на одну и ту же сумму денег через определенное время можно купить меньше товаров и услуг, чем прежде. Измеряется в процентах за определенный период (обычно за год).'
+                },
+                {
+                    title: 'Что такое дефляция?',
+                    content: 'Дефляция — это снижение общего уровня цен на товары и услуги, противоположность инфляции. При дефляции покупательная способность денег растет. Хотя это может показаться положительным явлением, длительная дефляция может привести к экономическому спаду, так как потребители откладывают покупки в ожидании дальнейшего снижения цен.'
+                },
+                {
+                    title: 'Что такое ИПЦ (Индекс потребительских цен)?',
+                    content: 'ИПЦ — это показатель изменения среднего уровня цен на товары и услуги, которые покупают домашние хозяйства для непроизводственного потребления. Рассчитывается на основе потребительской корзины — набора наиболее распространенных товаров и услуг. ИПЦ является основным индикатором инфляции.'
+                },
+                {
+                    title: 'Базовая инфляция',
+                    content: 'Базовая инфляция — это показатель роста цен, который не учитывает резкие колебания цен на отдельные товары (например, сезонные продукты, топливо). Она отражает долгосрочные инфляционные тенденции и используется центральными банками для принятия решений в денежно-кредитной политике.'
+                },
+                {
+                    title: 'Потребительская корзина',
+                    content: 'Потребительская корзина — это условный набор товаров и услуг, который используется для наблюдения за динамикой потребительских цен. В России она включает более 500 наименований товаров и услуг, сгруппированных в 12 основных категорий. Состав корзины периодически пересматривается с учетом изменения структуры потребления.'
+                },
+                {
+                    title: 'Как рассчитывается личная инфляция?',
+                    content: 'Личная инфляция рассчитывается на основе вашей индивидуальной потребительской корзины. Вы указываете, какую долю бюджета тратите на различные категории товаров и услуг, а калькулятор взвешивает темпы роста цен в этих категориях согласно вашим расходам. Чем больше доля товара в ваших тратах, тем сильнее его подорожание влияет на вашу личную инфляцию.'
+                }
+            ],
+            en: [
+                {
+                    title: 'What is Inflation?',
+                    content: 'Inflation is a sustained increase in the general price level of goods and services in an economy. With inflation, you can buy fewer goods and services for the same amount of money over time. It is measured as a percentage over a specific period (usually a year).'
+                },
+                {
+                    title: 'What is Deflation?',
+                    content: 'Deflation is a decrease in the general price level of goods and services, the opposite of inflation. With deflation, the purchasing power of money increases. While this may seem positive, prolonged deflation can lead to economic decline as consumers postpone purchases expecting further price decreases.'
+                },
+                {
+                    title: 'What is CPI (Consumer Price Index)?',
+                    content: 'CPI is an indicator of changes in the average price level of goods and services purchased by households for non-productive consumption. It is calculated based on a consumer basket — a set of the most common goods and services. CPI is the main indicator of inflation.'
+                },
+                {
+                    title: 'Core Inflation',
+                    content: 'Core inflation is a measure of price growth that excludes sharp fluctuations in prices of individual goods (e.g., seasonal products, fuel). It reflects long-term inflation trends and is used by central banks for monetary policy decisions.'
+                },
+                {
+                    title: 'Consumer Basket',
+                    content: 'A consumer basket is a conditional set of goods and services used to monitor consumer price dynamics. In Russia, it includes over 500 items grouped into 12 main categories. The composition of the basket is periodically revised to account for changes in consumption patterns.'
+                },
+                {
+                    title: 'How is Personal Inflation Calculated?',
+                    content: 'Personal inflation is calculated based on your individual consumer basket. You specify what share of your budget you spend on various categories of goods and services, and the calculator weights the price growth rates in these categories according to your expenses. The larger the share of an item in your spending, the more its price increase affects your personal inflation.'
+                }
+            ]
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            renderCategories();
+            renderReferenceMaterials();
+            calculatePersonalInflation();
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+
+            const yearData = inflationDataByYear[currentYear];
+
+            categories.forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category-group';
+                categoryDiv.id = `cat-${category.id}`;
+
+                const categoryYearData = yearData[category.id];
+                const avgInflation = categoryYearData.avgInflation;
+
+                const subcategoriesHTML = category.subcategories.map(sub => {
+                    const subInflation = categoryYearData.subcategories[sub.id];
+                    const inflationClass = subInflation >= 10 ? 'inflation-high' : 
+                                           subInflation >= 7 ? 'inflation-medium' : 'inflation-low';
+                    const subId = `${category.id}-${sub.id}`;
+                    
+                    if (!weights[subId]) weights[subId] = 0;
+
+                    return `
+                        <div class="subcategory-item">
+                            <div class="subcategory-info">
+                                <div class="subcategory-name">${sub.name[currentLang]}</div>
+                                <span class="subcategory-inflation ${inflationClass}">
+                                    ${subInflation > 0 ? '+' : ''}${subInflation}%
+                                </span>
+                            </div>
+                            <div class="weight-control">
+                                <div class="weight-input-wrapper">
+                                    <input type="number" 
+                                           class="weight-input" 
+                                           id="weight-${subId}"
+                                           min="0" 
+                                           max="100" 
+                                           step="0.1"
+                                           value="${weights[subId]}"
+                                           onchange="updateWeight('${subId}', this.value)">
+                                    <span class="percent-sign">%</span>
+                                </div>
+                                <div class="slider-wrapper">
+                                    <input type="range" 
+                                           class="slider" 
+                                           id="slider-${subId}"
+                                           min="0" 
+                                           max="100" 
+                                           step="0.1"
+                                           value="${weights[subId]}"
+                                           oninput="updateWeightFromSlider('${subId}', this.value)">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                categoryDiv.innerHTML = `
+                    <div class="category-header" onclick="toggleCategory('${category.id}')">
+                        <div class="category-header-left">
+                            <div class="category-icon">${category.icon}</div>
+                            <div class="category-info">
+                                <h3>${category.name[currentLang]}</h3>
+                                <div class="category-avg-inflation">
+                                    ${currentLang === 'ru' ? 'Средняя инфляция' : 'Average inflation'}: +${avgInflation}%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="subcategories">
+                        ${subcategoriesHTML}
+                    </div>
+                `;
+
+                container.appendChild(categoryDiv);
+            });
+        }
+
+        function renderReferenceMaterials() {
+            const container = document.getElementById('referenceContainer');
+            container.innerHTML = '';
+
+            referenceData[currentLang].forEach((item, index) => {
+                const refDiv = document.createElement('div');
+                refDiv.className = 'reference-item';
+                refDiv.id = `ref-${index}`;
+                refDiv.innerHTML = `
+                    <div class="reference-header" onclick="toggleReference(${index})">
+                        <h4 class="reference-title">${item.title}</h4>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="reference-content">${item.content}</div>
+                `;
+                container.appendChild(refDiv);
+            });
+        }
+
+        function toggleCategory(catId) {
+            const element = document.getElementById(`cat-${catId}`);
+            element.classList.toggle('expanded');
+        }
+
+        function toggleReference(index) {
+            const element = document.getElementById(`ref-${index}`);
+            element.classList.toggle('expanded');
+        }
+
+        function updateWeight(subId, value) {
+            value = Math.max(0, Math.min(100, parseFloat(value) || 0));
+            weights[subId] = value;
+            
+            const sliderEl = document.getElementById(`slider-${subId}`);
+            if (sliderEl) sliderEl.value = value;
+            
+            calculatePersonalInflation();
+        }
+
+        function updateWeightFromSlider(subId, value) {
+            weights[subId] = parseFloat(value);
+            
+            const inputEl = document.getElementById(`weight-${subId}`);
+            if (inputEl) inputEl.value = value;
+            
+            calculatePersonalInflation();
+        }
+
+        function calculatePersonalInflation() {
+            let totalWeight = 0;
+            let weightedInflation = 0;
+            let itemsCount = 0;
+
+            const yearData = inflationDataByYear[currentYear];
+
+            categories.forEach(category => {
+                const categoryYearData = yearData[category.id];
+                category.subcategories.forEach(sub => {
+                    const subId = `${category.id}-${sub.id}`;
+                    const weight = weights[subId] || 0;
+                    const subInflation = categoryYearData.subcategories[sub.id];
+                    
+                    if (weight > 0) {
+                        itemsCount++;
+                        totalWeight += weight;
+                        weightedInflation += (weight / 100) * subInflation;
+                    }
+                });
+            });
+
+            const personalInflation = totalWeight > 0 ? weightedInflation : 0;
+            const avgInflation = yearData.avgInflation;
+            const difference = personalInflation - avgInflation;
+
+            document.getElementById('personalInflation').textContent = personalInflation.toFixed(1) + '%';
+            document.getElementById('totalWeight').textContent = totalWeight.toFixed(1) + '%';
+            document.getElementById('itemsSelected').textContent = itemsCount;
+
+            // Update average Russia stat
+            const avgRussiaElement = document.querySelectorAll('.stat-value')[0];
+            if (avgRussiaElement) {
+                avgRussiaElement.textContent = avgInflation + '%';
+            }
+
+            let comparisonText = '';
+            const lang = translations[currentLang];
+            
+            if (totalWeight === 0) {
+                comparisonText = lang.specify;
+            } else if (totalWeight < 100) {
+                comparisonText = `⚠️ ${lang.remaining} ${(100 - totalWeight).toFixed(1)}%`;
+            } else if (totalWeight > 100) {
+                comparisonText = `⚠️ ${lang.excess} ${(totalWeight - 100).toFixed(1)}%`;
+            } else if (difference > 0) {
+                comparisonText = `↑ ${Math.abs(difference).toFixed(1)}% ${lang.higher}`;
+            } else if (difference < 0) {
+                comparisonText = `↓ ${Math.abs(difference).toFixed(1)}% ${lang.lower}`;
+            } else {
+                comparisonText = `= ${lang.equal}`;
+            }
+
+            document.getElementById('comparisonText').textContent = comparisonText;
+        }
+
+        function resetWeights() {
+            Object.keys(weights).forEach(key => {
+                weights[key] = 0;
+            });
+            renderCategories();
+            calculatePersonalInflation();
+        }
+
+        function shareResults() {
+            const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+            if (totalWeight === 0) {
+                alert(currentLang === 'ru' ? 
+                    'Сначала укажите доли товаров в вашем бюджете' : 
+                    'Please specify item shares in your budget first');
+                return;
+            }
+
+            let weightedInflation = 0;
+            categories.forEach(category => {
+                category.subcategories.forEach(sub => {
+                    const subId = `${category.id}-${sub.id}`;
+                    weightedInflation += (weights[subId] / 100) * sub.inflation;
+                });
+            });
+
+            const text = currentLang === 'ru' ?
+                `Моя личная инфляция: ${weightedInflation.toFixed(1)}%\nСредняя по России: 8.5%\n\nРассчитано на калькуляторе личной инфляции` :
+                `My personal inflation: ${weightedInflation.toFixed(1)}%\nRussia average: 8.5%\n\nCalculated with Personal Inflation Calculator`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: currentLang === 'ru' ? 'Моя личная инфляция' : 'My Personal Inflation',
+                    text: text
+                });
+            } else {
+                navigator.clipboard.writeText(text);
+                alert(currentLang === 'ru' ? 
+                    'Результаты скопированы в буфер обмена!' : 
+                    'Results copied to clipboard!');
+            }
+        }
+
+        // Initialize
+        renderCategories();
+        renderReferenceMaterials();
+        calculatePersonalInflation();
+    </script>
+</body>
+</html>
